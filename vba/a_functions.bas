@@ -1,6 +1,13 @@
 Attribute VB_Name = "a_functions"
 Option Explicit
 Option Base 0
+Function TabelaProximoId(ws As Worksheet) As Long
+    Dim id As Long
+    
+    id = ws.Cells(Rows.Count, "A").End(xlUp).Row
+    
+    TabelaProximoId = id
+End Function
 Function ColunaValorUpdate(xForm As Object, ws As Worksheet) As Variant
     Dim c As Control, cTag As String, cNome As String, cTipo As String, cValor As Variant
     Dim par As New Scripting.Dictionary
@@ -11,12 +18,16 @@ Function ColunaValorUpdate(xForm As Object, ws As Worksheet) As Variant
         cTipo = TypeName(c)
         If InArray(Array("ComboBox", "TextBox", "OptionButton", "CheckBox"), cTipo) And ColunaExiste(cNome, ws, 1) Then
             cValor = c.value
-            If StringInString(cTag, "campo-data") Then
-                par.Add cNome, cNome & "= #" & cValor & "#"
-            ElseIf StringInString(cTag, "numeric") Then
-                par.Add cNome, cNome & "=" & cValor
+            If cValor <> "" Then
+                If StringInString(cTag, "campo-data") Then
+                    par.Add cNome, cNome & "= #" & cValor & "#"
+                ElseIf StringInString(cTag, "numeric") Then
+                    par.Add cNome, cNome & "=" & cValor
+                Else
+                    par.Add cNome, cNome & "='" & cValor & "'"
+                End If
             Else
-                par.Add cNome, cNome & "='" & cValor & "'"
+                par.Add cNome, cNome & "=Null"
             End If
         End If
     Next c
@@ -33,12 +44,16 @@ Sub ColunaValorInsertInto(xForm As Object, ws As Worksheet, colunas As Variant, 
         cTipo = TypeName(c)
         If InArray(Array("ComboBox", "TextBox", "OptionButton", "CheckBox"), cTipo) And ColunaExiste(cNome, ws, 1) Then
             cValor = c.value
-            If StringInString(cTag, "campo-data") Then
-                valor.Add cNome, "#" & cValor & "#"
-            ElseIf StringInString(cTag, "numeric") Then
-                valor.Add cNome, cValor
+            If cValor <> "" Then
+                If StringInString(cTag, "campo-data") Then
+                    valor.Add cNome, "#" & cValor & "#"
+                ElseIf StringInString(cTag, "numeric") Then
+                    valor.Add cNome, cValor
+                Else
+                    valor.Add cNome, "'" & cValor & "'"
+                End If
             Else
-                valor.Add cNome, "'" & cValor & "'"
+                valor.Add cNome, "Null"
             End If
             cols.Add cNome, cNome
         End If
@@ -829,13 +844,13 @@ Function ExisteRegistros(xColuna As String, xValorProcurado As String, xTabela A
     'Autor: Elias Junior||eng.eliasocjunior@gmail.com||(86)99993-0217
     'Última modificação 26/12/2023
     '--------------------------------------------------------------------------------------
-    Dim SLC As Variant, frm As String, WHRE As Variant
+    Dim slc As Variant, frm As String, WHRE As Variant
     Dim cSQL As String
     Dim arOut As Variant
 
-    SLC = Array(xColuna)
+    slc = Array(xColuna)
     WHRE = Array(SQLWhere(xColuna, xValorProcurado, False))
-    cSQL = SQLQueryString(SLC, xTabela, WHRE)
+    cSQL = SQLQueryString(slc, xTabela, WHRE)
     arOut = ConsultaSQL(cSQL, False, ThisWorkbook.FullName)
     If IsEmpty(arOut) Then
         ExisteRegistros = False

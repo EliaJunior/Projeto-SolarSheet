@@ -43,7 +43,7 @@ Function ListaCidades(Uf As String) As Variant
 
     If isArrayNotEmpty(arOut) Then ListaCidades = arOut Else ListaCidades = arEscape()
 End Function
-Function ListaFuncoes() As Variant
+Function ListaFuncoesID() As Variant
     Dim stSQL As String
     Dim arOut As Variant
     Dim tb As String
@@ -51,7 +51,7 @@ Function ListaFuncoes() As Variant
     tb = TabelaRefSQL(tFuncoes, 2, "t")
 
     stSQL = "SELECT " & _
-                "[Funcao] " & _
+                "[Funcao],[Id] " & _
             "FROM " & tb & _
             "WHERE " & _
                 "[Status] = 'ativo' " & _
@@ -60,7 +60,45 @@ Function ListaFuncoes() As Variant
    
     arOut = ConsultaSQL(stSQL, False, True, ThisWorkbookFullPath, False)
 
-    If isArrayNotEmpty(arOut) Then ListaFuncoes = arOut Else ListaFuncoes = arEscape()
+    If isArrayNotEmpty(arOut) Then ListaFuncoesID = arOut Else ListaFuncoesID = arEscape()
+End Function
+Function ListaDadosParceiros(tipo As String) As Variant
+    Dim stSQL As String
+    Dim arOut As Variant
+    Dim tb As String
+    Dim slc As String
+    
+    'Tabela
+    tb = TabelaRefSQL(tParceiros, 2, "t")
+    
+    'Select
+    If tipo = "Colaborador" Then
+        slc = "[Id] AS [ID], " & _
+              "[Nome], " & _
+              "[Uf] AS [UF], " & _
+              "[Cidade], " & _
+              "[Tel_Contato] AS [Telefone], " & _
+              "[E_Mail] AS [E-mail], " & _
+              "[Cargo_Colaborador] AS [Função] "
+    Else
+        slc = "[Id] AS [ID], " & _
+              "[Nome], " & _
+              "[Uf] AS [UF], " & _
+              "[Cidade], " & _
+              "[Tel_Contato] AS [Telefone], " & _
+              "[E_Mail] AS [E-mail] "
+    End If
+
+    'Consulta SQL
+    stSQL = "SELECT " & slc & _
+            "FROM " & tb & _
+            "WHERE " & _
+                "[Status] = 'ativo' AND " & _
+                "[Tipo_Parceiro] = '" & tipo & "' "
+   
+    arOut = ConsultaSQL(stSQL, True, True, ThisWorkbookFullPath, False)
+
+    If isArrayNotEmpty(arOut) Then ListaDadosParceiros = arOut Else ListaDadosParceiros = arEscape()
 End Function
 Function arEscape() As Variant
     Dim ar(0 To 0, 0 To 0)

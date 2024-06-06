@@ -4,7 +4,7 @@ Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} Parceiros
    ClientHeight    =   7956
    ClientLeft      =   108
    ClientTop       =   456
-   ClientWidth     =   4560
+   ClientWidth     =   4500
    OleObjectBlob   =   "Parceiros.frx":0000
    StartUpPosition =   1  'CenterOwner
 End
@@ -39,6 +39,12 @@ Private Sub btSalvar_Click()
     'Valida formulario
     If Not ValidarFormulario(Me, arOb) Then Exit Sub
     
+    'Verifica se o tipo é "Colaborador" e se a Função foi preenchida
+    If Tipo_Parceiro = "Colaborador" And Cargo_Colaborador.value = "" Then
+        MsgBox "O campo 'Cargo/Função' é obrigatório para colaboradores!", vbExclamation
+        Exit Sub
+    End If
+    
     'Salva os dados
     If main.isEdit Then
         arColValues = ColunaValorUpdate(Me, tParceiros)
@@ -53,6 +59,10 @@ Private Sub btSalvar_Click()
     
     'Fecha o formulário
     Unload Me
+End Sub
+
+Private Sub Cargo_Colaborador_Change()
+    PreencherTextBoxComID Cargo_Colaborador, Id_Funcao, 0
 End Sub
 
 Private Sub Tipo_Parceiro_Change()
@@ -81,12 +91,11 @@ Private Sub UserForm_Initialize()
     
     'Comboboxes
     Uf.List = ListaUF()
-    Cargo_Colaborador.List = ListaFuncoes()
+    Cargo_Colaborador.List = ListaFuncoesID()
     Tipo_Parceiro.List = Array("Cliente", "Fornecedor", "Colaborador")
     
     'CurID
-    'thisID = main.idParceiro
-    thisID = 1
+    thisID = main.idParceiro
     
     'Preencher formulario com os dados existentes do id
     PreencherDadosFormularioSELECT Me, thisID, "Id", tParceiros
